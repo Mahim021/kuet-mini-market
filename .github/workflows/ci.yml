@@ -31,4 +31,6 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build and run tests
-        run: ./mvnw clean test
+        run: |
+          chmod +x mvnw
+          ./mvnw clean test
