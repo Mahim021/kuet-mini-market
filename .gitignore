@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Dummy
+.requirement.txt
+.database-schema.md
