@@ -38,8 +38,9 @@ public class AuthService {
             throw new EmailAlreadyExistsException("Email already registered: " + request.getEmail());
         }
 
-        Role buyerRole = roleRepository.findByName(RoleName.BUYER)
-                .orElseGet(() -> roleRepository.save(new Role(null, RoleName.BUYER)));
+        List<String> requestedRoles = (request.getRoles() != null && !request.getRoles().isEmpty())
+                ? request.getRoles()
+                : List.of("BUYER");
 
         User user = User.builder()
                 .fullName(request.getFullName())
@@ -48,7 +49,26 @@ public class AuthService {
                 .enabled(true)
                 .build();
 
-        user.getRoles().add(buyerRole);
+        for (String roleStr : requestedRoles) {
+            RoleName rn;
+            try {
+                rn = RoleName.valueOf(roleStr.toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                continue; // skip unknown role strings
+            }
+            final RoleName finalRn = rn;
+            Role role = roleRepository.findByName(finalRn)
+                    .orElseGet(() -> roleRepository.save(new Role(null, finalRn)));
+            user.getRoles().add(role);
+        }
+
+        // Fallback: if no valid role was provided, assign BUYER
+        if (user.getRoles().isEmpty()) {
+            Role buyerRole = roleRepository.findByName(RoleName.BUYER)
+                    .orElseGet(() -> roleRepository.save(new Role(null, RoleName.BUYER)));
+            user.getRoles().add(buyerRole);
+        }
+
         userRepository.save(user);
 
         CustomUserDetails userDetails = new CustomUserDetails(user);
@@ -59,6 +79,7 @@ public class AuthService {
                 .collect(Collectors.toList());
 
         return AuthResponse.builder()
+                .id(user.getId())
                 .token(token)
                 .email(user.getEmail())
                 .roles(roles)
@@ -78,6 +99,7 @@ public class AuthService {
                 .collect(Collectors.toList());
 
         return AuthResponse.builder()
+                .id(userDetails.getUser().getId())
                 .token(token)
                 .email(userDetails.getUsername())
                 .roles(roles)
