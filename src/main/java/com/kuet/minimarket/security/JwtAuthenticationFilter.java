@@ -6,22 +6,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,17 +33,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(token) && jwtUtil.validateToken(token)) {
             String email = jwtUtil.extractEmail(token);
-            List<String> roles = jwtUtil.extractRoles(token);
-
-            List<SimpleGrantedAuthority> authorities = roles.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(email, null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (UsernameNotFoundException ignored) {
+                // Token valid but user no longer exists — leave authentication null
+            }
         }
 
         filterChain.doFilter(request, response);

@@ -1,10 +1,22 @@
+# ========== Spring Boot / Maven ==========
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# ========== Logs ==========
+*.log
+*.log.*.gz
+app.log*
+
+# ========== IDE — IntelliJ IDEA ==========
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# ========== IDE — Eclipse / STS ==========
 .apt_generated
 .classpath
 .factorypath
@@ -13,13 +25,7 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# ========== IDE — NetBeans ==========
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -29,9 +35,16 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# ========== IDE — VS Code ==========
 .vscode/
 
-### Dummy
-.requirement.txt
-.database-schema.md
+# ========== OS junk ==========
+NUL
+Thumbs.db
+.DS_Store
+
+# ========== Dev / temp files ==========
+requirement.txt
+rest-api.txt
+database-schema.md
+test-*.ps1
