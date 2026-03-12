@@ -1,0 +1,8 @@
+target/
+.git/
+.gitignore
+*.md
+mvnw
+mvnw.cmd
+.mvn/
+test-auth-api.ps1
