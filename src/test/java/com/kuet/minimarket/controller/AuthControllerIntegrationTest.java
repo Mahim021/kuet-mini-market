@@ -1,5 +1,24 @@
 package com.kuet.minimarket.controller;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kuet.minimarket.dto.LoginRequest;
 import com.kuet.minimarket.dto.RegisterRequest;
@@ -11,22 +30,6 @@ import com.kuet.minimarket.repository.UserRepository;
 import com.kuet.minimarket.security.CustomUserDetails;
 import com.kuet.minimarket.security.CustomUserDetailsService;
 import com.kuet.minimarket.security.JwtUtil;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class AuthControllerIntegrationTest {
@@ -75,6 +78,7 @@ class AuthControllerIntegrationTest {
         req.setFullName("Test User");
         req.setEmail("newuser@test.com");
         req.setPassword("password123");
+        req.setRoles(List.of("BUYER"));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,6 +97,7 @@ class AuthControllerIntegrationTest {
         req.setFullName("Dup Again");
         req.setEmail("dup@test.com");
         req.setPassword("password123");
+        req.setRoles(List.of("BUYER"));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

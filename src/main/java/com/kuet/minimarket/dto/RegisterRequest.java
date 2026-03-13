@@ -1,11 +1,12 @@
 package com.kuet.minimarket.dto;
 
+import java.util.List;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class RegisterRequest {
@@ -21,6 +22,7 @@ public class RegisterRequest {
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
-    // Optional: ["BUYER"], ["SELLER"], ["BUYER", "SELLER"], etc. Defaults to ["BUYER"]
+    // Required: ["BUYER"], ["SELLER"], or ["BUYER", "SELLER"]
+    @NotEmpty(message = "At least one role must be selected (BUYER, SELLER, or both)")
     private List<String> roles;
 }
