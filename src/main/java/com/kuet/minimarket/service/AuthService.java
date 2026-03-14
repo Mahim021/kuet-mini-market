@@ -38,9 +38,7 @@ public class AuthService {
             throw new EmailAlreadyExistsException("Email already registered: " + request.getEmail());
         }
 
-        List<String> requestedRoles = (request.getRoles() != null && !request.getRoles().isEmpty())
-                ? request.getRoles()
-                : List.of("BUYER");
+        List<String> requestedRoles = request.getRoles();
 
         User user = User.builder()
                 .fullName(request.getFullName())
@@ -62,11 +60,9 @@ public class AuthService {
             user.getRoles().add(role);
         }
 
-        // Fallback: if no valid role was provided, assign BUYER
+        // If all provided role strings were invalid/unrecognized, reject the request
         if (user.getRoles().isEmpty()) {
-            Role buyerRole = roleRepository.findByName(RoleName.BUYER)
-                    .orElseGet(() -> roleRepository.save(new Role(null, RoleName.BUYER)));
-            user.getRoles().add(buyerRole);
+            throw new IllegalArgumentException("No valid role provided. Accepted values: BUYER, SELLER");
         }
 
         userRepository.save(user);
