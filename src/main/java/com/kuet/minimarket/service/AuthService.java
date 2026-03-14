@@ -74,12 +74,12 @@ public class AuthService {
                 .map(r -> r.getName().name())
                 .collect(Collectors.toList());
 
-        return AuthResponse.builder()
-                .id(user.getId())
-                .token(token)
-                .email(user.getEmail())
-                .roles(roles)
-                .build();
+        AuthResponse response = new AuthResponse();
+        response.setId(user.getId());
+        response.setToken(token);
+        response.setEmail(user.getEmail());
+        response.setRoles(roles);
+        return response;
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -94,11 +94,11 @@ public class AuthService {
                 .map(r -> r.getName().name())
                 .collect(Collectors.toList());
 
-        return AuthResponse.builder()
-                .id(userDetails.getUser().getId())
-                .token(token)
-                .email(userDetails.getUsername())
-                .roles(roles)
-                .build();
+        AuthResponse response = new AuthResponse();
+        response.setId(userDetails.getUser().getId());
+        response.setToken(token);
+        response.setEmail(userDetails.getUsername());
+        response.setRoles(roles);
+        return response;
     }
 }
