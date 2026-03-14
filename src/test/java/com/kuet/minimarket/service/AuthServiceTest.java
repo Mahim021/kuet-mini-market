@@ -1,5 +1,27 @@
 package com.kuet.minimarket.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.kuet.minimarket.dto.AuthResponse;
 import com.kuet.minimarket.dto.LoginRequest;
 import com.kuet.minimarket.dto.RegisterRequest;
@@ -11,26 +33,6 @@ import com.kuet.minimarket.repository.RoleRepository;
 import com.kuet.minimarket.repository.UserRepository;
 import com.kuet.minimarket.security.CustomUserDetails;
 import com.kuet.minimarket.security.JwtUtil;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -50,6 +52,7 @@ class AuthServiceTest {
         req.setFullName("Alice");
         req.setEmail("alice@example.com");
         req.setPassword("secret123");
+        req.setRoles(List.of("BUYER"));
 
         Role buyerRole = new Role(1L, RoleName.BUYER);
 
@@ -87,6 +90,7 @@ class AuthServiceTest {
         req.setFullName("Bob");
         req.setEmail("bob@example.com");
         req.setPassword("plaintext");
+        req.setRoles(List.of("BUYER"));
 
         Role buyerRole = new Role(1L, RoleName.BUYER);
         when(userRepository.existsByEmail(any())).thenReturn(false);

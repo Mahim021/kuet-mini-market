@@ -71,7 +71,7 @@ class AdminControllerIntegrationTest {
         return jwtUtil.generateToken(userDetails);
     }
 
-    // Integration test 7: ADMIN can list all users — returns 200
+    // Integration test 7: ADMIN can list users — admin account excluded from list
     @Test
     void getAllUsers_asAdmin_returns200WithUserList() throws Exception {
         createAndSaveUser("admin@admin.com", "Admin User", RoleName.ADMIN);
@@ -81,7 +81,9 @@ class AdminControllerIntegrationTest {
         mockMvc.perform(get("/api/admin/users")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].email").value("buyer@admin.com"));
     }
 
     // Integration test 8: ADMIN can deactivate a user — returns 200 with enabled=false
@@ -133,5 +135,16 @@ class AdminControllerIntegrationTest {
     void getAllUsers_withoutAuth_returns401() throws Exception {
         mockMvc.perform(get("/api/admin/users"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    // Integration test 12: ADMIN cannot deactivate themselves — returns 403
+    @Test
+    void deactivateUser_selfDeactivate_returns403() throws Exception {
+        User adminSelf = createAndSaveUser("admin4@admin.com", "Admin Self", RoleName.ADMIN);
+        String adminToken = getToken("admin4@admin.com");
+
+        mockMvc.perform(patch("/api/admin/users/" + adminSelf.getId() + "/deactivate")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isForbidden());
     }
 }

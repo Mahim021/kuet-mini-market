@@ -2,6 +2,7 @@ package com.kuet.minimarket.service;
 
 import com.kuet.minimarket.dto.UserResponse;
 import com.kuet.minimarket.entity.User;
+import com.kuet.minimarket.exception.ForbiddenException;
 import com.kuet.minimarket.exception.ResourceNotFoundException;
 import com.kuet.minimarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,21 +18,28 @@ public class AdminService {
 
     private final UserRepository userRepository;
 
-    public List<UserResponse> getAllUsers() {
+    public List<UserResponse> getAllUsers(Long currentAdminId) {
         return userRepository.findAll().stream()
+                .filter(user -> !user.getId().equals(currentAdminId))
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public UserResponse activateUser(Long id) {
+    public UserResponse activateUser(Long id, Long currentAdminId) {
+        if (id.equals(currentAdminId)) {
+            throw new ForbiddenException("Cannot modify your own account");
+        }
         User user = findUserOrThrow(id);
         user.setEnabled(true);
         return toResponse(userRepository.save(user));
     }
 
     @Transactional
-    public UserResponse deactivateUser(Long id) {
+    public UserResponse deactivateUser(Long id, Long currentAdminId) {
+        if (id.equals(currentAdminId)) {
+            throw new ForbiddenException("Cannot modify your own account");
+        }
         User user = findUserOrThrow(id);
         user.setEnabled(false);
         return toResponse(userRepository.save(user));
