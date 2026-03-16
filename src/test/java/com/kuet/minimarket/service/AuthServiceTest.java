@@ -76,6 +76,7 @@ class AuthServiceTest {
         req.setFullName("Dup");
         req.setEmail("dup@example.com");
         req.setPassword("secret123");
+        req.setRoles(List.of("BUYER"));
 
         when(userRepository.existsByEmail(req.getEmail())).thenReturn(true);
 
